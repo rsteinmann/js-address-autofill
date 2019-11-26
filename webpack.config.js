@@ -1,5 +1,4 @@
 const path = require('path')
-const HtmlWebPackPlugin = require('html-webpack-plugin')
 const UnminifiedWebpackPlugin = require('unminified-webpack-plugin')
 const devMode = process.env.NODE_ENV !== 'production'
 
@@ -10,7 +9,7 @@ module.exports = {
     entry: './src/index.js',
     output: {
         path: path.resolve(__dirname, 'dist'),
-        filename: 'addressAutofill.js',
+        filename: devMode ? 'addressAutofill.js' : 'addressAutofill.min.js',
         libraryTarget: 'var',
         library: 'AddressAutofill',
     },
@@ -28,20 +27,17 @@ module.exports = {
             }
         ]
     },
-    plugins: [
-        new UnminifiedWebpackPlugin()
-    ],
     resolve: {
         extensions: ['.js', '.json']
     },
     devtool: 'source-map',
     devServer: {
-    contentBase: [
-        path.join(__dirname, 'demo'),
-        path.join(__dirname, 'dist'),
-    ],
-    compress: true,
-    liveReload: true,
-    port: 9000
+        contentBase: [
+            path.join(__dirname, 'demo'),
+            path.join(__dirname, 'dist'),
+        ],
+        compress: true,
+        liveReload: true,
+        port: 9000
     },
 }

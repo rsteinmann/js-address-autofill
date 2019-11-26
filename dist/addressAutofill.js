@@ -1,14 +1,5 @@
-(function webpackUniversalModuleDefinition(root, factory) {
-	if(typeof exports === 'object' && typeof module === 'object')
-		module.exports = factory();
-	else if(typeof define === 'function' && define.amd)
-		define([], factory);
-	else if(typeof exports === 'object')
-		exports["AddressAutofill"] = factory();
-	else
-		root["AddressAutofill"] = factory();
-})(window, function() {
-return /******/ (function(modules) { // webpackBootstrap
+var AddressAutofill =
+/******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
 /******/
@@ -96,41 +87,6 @@ return /******/ (function(modules) { // webpackBootstrap
 /************************************************************************/
 /******/ ({
 
-/***/ "./node_modules/webpack/buildin/harmony-module.js":
-/*!*******************************************!*\
-  !*** (webpack)/buildin/harmony-module.js ***!
-  \*******************************************/
-/*! no static exports found */
-/***/ (function(module, exports) {
-
-module.exports = function(originalModule) {
-	if (!originalModule.webpackPolyfill) {
-		var module = Object.create(originalModule);
-		// module.parent = undefined by default
-		if (!module.children) module.children = [];
-		Object.defineProperty(module, "loaded", {
-			enumerable: true,
-			get: function() {
-				return module.l;
-			}
-		});
-		Object.defineProperty(module, "id", {
-			enumerable: true,
-			get: function() {
-				return module.i;
-			}
-		});
-		Object.defineProperty(module, "exports", {
-			enumerable: true
-		});
-		module.webpackPolyfill = 1;
-	}
-	return module;
-};
-
-
-/***/ }),
-
 /***/ "./src/addressAutofill.js":
 /*!********************************!*\
   !*** ./src/addressAutofill.js ***!
@@ -140,7 +96,7 @@ module.exports = function(originalModule) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return GoogleAutocomplete; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return AddressAutofill; });
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
@@ -218,15 +174,15 @@ var defaultOptions = {
 }; // Bias the autocomplete object to the user's geographical location,
 // as supplied by the browser's 'navigator.geolocation' object.
 
-var GoogleAutocomplete =
+var AddressAutofill =
 /*#__PURE__*/
 function () {
-  function GoogleAutocomplete(context) {
+  function AddressAutofill(context) {
     var _this = this;
 
     var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
-    _classCallCheck(this, GoogleAutocomplete);
+    _classCallCheck(this, AddressAutofill);
 
     this.options = _objectSpread({}, defaultOptions, {}, options);
     this.inputElement = document.querySelector('[data-autocomplete]');
@@ -251,7 +207,7 @@ function () {
     return this;
   }
 
-  _createClass(GoogleAutocomplete, [{
+  _createClass(AddressAutofill, [{
     key: "setAddress",
     value: function setAddress() {
       var _this2 = this;
@@ -285,7 +241,7 @@ function () {
           var element = document.querySelector(resultMap[itemName].targetSelector);
 
           if (!element) {
-            console.warn("GoogleAutocomplete: Could not find in element ".concat(resultMap[itemName].targetSelector, " in DOM, please check your config!"));
+            console.warn("AddressAutofill: Could not find in element ".concat(resultMap[itemName].targetSelector, " in DOM, please check your config!"));
           } else {
             _this2.result[itemName] = itemValue;
             element.value = itemValue;
@@ -322,7 +278,7 @@ function () {
     }
   }]);
 
-  return GoogleAutocomplete;
+  return AddressAutofill;
 }();
 /**
  * Injects Google Maps Api script to dom using params from config.
@@ -336,11 +292,11 @@ function injectMapsScript() {
   var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
 
   if (_typeof(params) !== 'object') {
-    return console.error('"googleScriptParams" are required for GoogleAutocomplete configuration!');
+    return console.error('"googleScriptParams" are required for AddressAutofill configuration!');
   }
 
   if (!params.key) {
-    return console.error('Please add a valid API key for "googleScriptParams.key" to run GoogleAutocomplete!');
+    return console.error('Please add a valid API key for "AddressAutofill.key" to run AddressAutofill!');
   }
 
   var mapsUrl = "https://maps.googleapis.com/maps/api/js?libraries=places";
@@ -360,23 +316,20 @@ function injectMapsScript() {
 /*!**********************!*\
   !*** ./src/index.js ***!
   \**********************/
-/*! no exports provided */
+/*! exports provided: init */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* WEBPACK VAR INJECTION */(function(module) {/* harmony import */ var _addressAutofill__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./addressAutofill */ "./src/addressAutofill.js");
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "init", function() { return init; });
+/* harmony import */ var _addressAutofill__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./addressAutofill */ "./src/addressAutofill.js");
 
-module.exports = {
-  run: function run(context) {
-    var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-    return new _addressAutofill__WEBPACK_IMPORTED_MODULE_0__["default"](context, options);
-  }
+var init = function init(context) {
+  var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+  return new _addressAutofill__WEBPACK_IMPORTED_MODULE_0__["default"](context, options);
 };
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./../node_modules/webpack/buildin/harmony-module.js */ "./node_modules/webpack/buildin/harmony-module.js")(module)))
 
 /***/ })
 
 /******/ });
-});
 //# sourceMappingURL=addressAutofill.js.map
