@@ -1,5 +1,8 @@
-
+/**
+ * The Modules default configuration.
+ */
 const defaultOptions = {
+  autoConstruct: false, // if set to true the module will autoconstruct and attach to window object as "addressAutofill"
   enableInputFillIn: true, // Fills out form with configured selectors on selection of google address
   inputSelector: '[data-autocomplete]',
   googleScriptParams: {
@@ -54,8 +57,8 @@ const defaultOptions = {
 // Bias the autocomplete object to the user's geographical location,
 // as supplied by the browser's 'navigator.geolocation' object.
 
-export default class GoogleAutocomplete {
-  constructor (options = {}) {
+export default class AddressAutofill {
+  constructor (context, options = {}) {
     this.options = {...defaultOptions, ...options}
     this.inputElement = document.querySelector('[data-autocomplete]')
     this.autocomplete = null
@@ -68,6 +71,7 @@ export default class GoogleAutocomplete {
       this.autocomplete.addListener('place_changed', () => this.setAddress())
     }
     injectMapsScript(this.options.googleScriptParams) // Injects Google Api Script
+    console.log('INIT:', this)
     return this
   }
 
@@ -98,7 +102,7 @@ export default class GoogleAutocomplete {
       if (this.options.enableInputFillIn) {
         const element = document.querySelector(resultMap[itemName].targetSelector)
         if (!element) {
-          console.warn(`GoogleAutocomplete: Could not find in element ${resultMap[itemName].targetSelector} in DOM, please check your config!`)
+          console.warn(`AddressAutofill: Could not find in element ${resultMap[itemName].targetSelector} in DOM, please check your config!`)
         } else {
           this.result[itemName] = itemValue
           element.value = itemValue
@@ -135,10 +139,10 @@ export default class GoogleAutocomplete {
  */
 function injectMapsScript (params = null) {
   if (typeof params !== 'object') {
-    return console.error('"googleScriptParams" are required for GoogleAutocomplete configuration!')
+    return console.error('"googleScriptParams" are required for AddressAutofill configuration!')
   }
   if (!params.key) {
-    return console.error('Please add a valid API key for "googleScriptParams.key" to run GoogleAutocomplete!')
+    return console.error('Please add a valid API key for "AddressAutofill.key" to run AddressAutofill!')
   }
   let mapsUrl = "https://maps.googleapis.com/maps/api/js?libraries=places"
   let mapsScript = document.createElement("script")

@@ -1,21 +1,42 @@
 {
   "name": "js-address-autofill",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "A Javascript using the Google Places Autocomplete API for address completion in forms.",
-  "main": "index.js",
+  "browserslist": [
+    "> 1%",
+    "last 5 versions",
+    "not ie <= 11",
+    "not dead"
+  ],
+  "keywords": [
+    "javascript",
+    "es2015",
+    "google-api",
+    "autocomplete"
+  ],
+  "author": {
+    "name": "Raphael Steinmann",
+    "email": "steinmann.raphael@gmail.com"
+  },
+  "license": "MIT",
+  "main": "src/addressAutofill.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "watch": "webpack --watch",
     "start": "webpack-dev-server --open",
+    "watch": "webpack --watch",
+    "prod": "cross-env NODE_ENV=production webpack",
+    "dev": "cross-env NODE_ENV=development webpack",
     "build": "webpack"
   },
-  "author": "",
-  "license": "ISC",
   "dependencies": {},
   "devDependencies": {
     "@babel/core": "^7.7.2",
     "@babel/preset-env": "^7.7.1",
     "babel-loader": "^8.0.6",
+    "cross-env": "^6.0.3",
+    "html-loader": "^0.5.5",
+    "html-webpack-plugin": "^3.2.0",
+    "unminified-webpack-plugin": "^2.0.0",
     "webpack": "^4.41.2",
     "webpack-cli": "^3.3.10",
     "webpack-dev-server": "^3.9.0"

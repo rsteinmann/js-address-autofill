@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+  <title>addressAutofill.js - Demo</title>
+  <style>
+      #autocomplete {
+        height: 30px;
+        font-size: 16px;
+      }
+      input {
+        width: 100%
+      }
+      input + input { margin-left: 1rem }
+  </style>
+</head>
+<body>
+
+  <main class="container mt-4">
+    <header class="mb-5">
+      <h1>addressAutofill.js - Demo</h1>
+    </header>
+    <article class="card">
+      <div class="card-body">
+          <h6 class="text-muted">Address Input</h6>
+          <input id="autocomplete" data-autocomplete style="border: 3px solid blueviolet; padding: 10px; width: 100%" />
+      </div>
+      <div class="card-body">
+        <h6 class="text-muted">Address Output</h6>
+        <form id="my-form-1">
+          <div class="row mb-2">
+            <div class="col-6">
+              <input type="text" name="streetName" disabled />
+            </div>
+            <div class="col-6">
+              <input type="text" name="streetNumber" />
+            </div>
+          </div>
+          <div class="row mb-2">
+            <div class="col-6">
+              <input type="text" name="postalCode" disabled />
+            </div>
+            <div class="col-6">
+              <input type="text" name="city" disabled />
+            </div>
+          </div>
+          <div class="row mb-2">
+            <div class="col-6">
+              <input type="text" name="country" disabled />
+            </div>
+          </div>
+          <div class="row mb-2">
+            <div class="col-6">
+                <input type="text" name="lat" disabled />
+            </div>
+            <div class="col-6">
+                <input type="text" name="lng" disabled />
+            </div>
+          </div>
+        </form>
+      </div>
+    </article>
+    <script src="addressAutofill.js"></script>
+    <script>
+      window.onload = function () {
+        
+        // The globally exposed Module
+        console.log('AddressAutofill', AddressAutofill)
+
+        // Load AddressAutocomplete for the 1st form
+        const context1  = document.getElementById('my-form-1')        
+        const instance1 = AddressAutofill.init(context1, {})
+        console.log('[1] instance', instance1)
+      }
+    </script>
+</body>
+</html>
