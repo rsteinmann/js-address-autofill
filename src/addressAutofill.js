@@ -4,16 +4,12 @@
 const defaultOptions = {
   autoConstruct: false, // if set to true the module will autoconstruct and attach to window object as "addressAutofill"
   enableInputFillIn: true, // Fills out form with configured selectors on selection of google address
+  useBrowserGeolocation: true, // Uses the browser's geolocation API to ask the user for her current location (makes predictions more precise)
   inputSelector: '[data-autocomplete]',
-  googleScriptParams: {
-    key: 'AIzaSyBDTdKd1_rCVcZhGzSaAMqYY7LDy9YaLl8',
-    callback: 'initAutocomplete',
-    language: 'de'
+  googleScriptParams: { // This configuration will be passed to Google Places API as urlParams
+    key: 'YOUR_KEY_IS_REQUIRED_HERE' // This is required!
   },
-  googlePlacesConfig: {
-    types: ['address'],
-    componentRestrictions: {country: 'de'}
-  },
+  googlePlacesConfig: {}, // This configuration will be passed to Google Places API
   mapResult: {
     streetName: {
       use: 'long_name',
@@ -54,9 +50,6 @@ const defaultOptions = {
 }
 
 
-// Bias the autocomplete object to the user's geographical location,
-// as supplied by the browser's 'navigator.geolocation' object.
-
 export default class AddressAutofill {
   constructor (context, options = {}) {
     this.options = {...defaultOptions, ...options}
@@ -66,16 +59,20 @@ export default class AddressAutofill {
     window.initAutocomplete = () => {
       // Create the autocomplete instance with custom options
       this.autocomplete = new google.maps.places.Autocomplete(this.inputElement, this.options.googlePlacesConfig)
-      this.geolocate()
+      if (this.options.useBrowserGeolocation) {
+        this.geolocate()
+      }
       // When the user selects an address from the dropdown, populate the address fields in the form.
       this.autocomplete.addListener('place_changed', () => this.setAddress())
     }
     injectMapsScript(this.options.googleScriptParams) // Injects Google Api Script
-    console.log('INIT:', this)
     return this
   }
 
 
+  /**
+   * Sets the address found by the Places API to the configured fields.
+   */
   setAddress() {
     this.result = {}
     const resultMap = this.options.mapResult
@@ -93,10 +90,12 @@ export default class AddressAutofill {
           itemValue = place.geometry.location.lng()
           break
         default:
-          itemValue = place.address_components.filter(component => {
-            // TODO: Fix error on empty entries like street number, etc...
-            return component.types.includes(resultMap[itemName].resultType)
-          })[0][resultMap[itemName].use]
+          const address_component = place.address_components.filter(component => component.types.includes(resultMap[itemName].resultType))
+          if (address_component.length > 0) {
+            itemValue = address_component[0][resultMap[itemName].use]
+          } else {
+            console.log(itemName, 'skipped')
+          }
       }
       // Optional: Fill out the form
       if (this.options.enableInputFillIn) {
@@ -110,10 +109,12 @@ export default class AddressAutofill {
       }
     }
     console.log ('Result', this.result)
-    
   }
 
 
+  /**
+   * Tries to get the user's geolocation using the browser's Geolocation API.
+   */
   geolocate() {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition((position) => {
@@ -125,9 +126,9 @@ export default class AddressAutofill {
           center: geolocation,
           radius: position.coords.accuracy
         })
-        console.log('I found your location!', geolocation, circle)
-        this.autocomplete.setBounds(circle.getBounds());
-      });
+        console.log('User\'s location has been detected!', geolocation)
+        this.autocomplete.setBounds(circle.getBounds())
+      })
     }
   }
 }
@@ -144,7 +145,7 @@ function injectMapsScript (params = null) {
   if (!params.key) {
     return console.error('Please add a valid API key for "AddressAutofill.key" to run AddressAutofill!')
   }
-  let mapsUrl = "https://maps.googleapis.com/maps/api/js?libraries=places"
+  let mapsUrl = "https://maps.googleapis.com/maps/api/js?libraries=places&callback=initAutocomplete"
   let mapsScript = document.createElement("script")
   for (const key in params) {
     mapsUrl += `&${key}=${params[key]}`
