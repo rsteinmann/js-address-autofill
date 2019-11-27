@@ -134,10 +134,17 @@
             },
           }
 
+
           // Load AddressAutocomplete for the 1st form
           const context1  = document.getElementById('my-form-1')
           const instance1 = AddressAutofill.init(context1, myConfig)
           console.log('[1] instance', instance1)
+
+
+          // Load AddressAutocomplete for the 2nd form
+          const context2  = document.getElementById('my-form-2')
+          const instance2 = AddressAutofill.init(context2, myConfig)
+          console.log('[2] instance', instance2)
         })
       }
     </script>

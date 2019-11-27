@@ -49,6 +49,8 @@ const defaultOptions = {
   }
 }
 
+let instances = window.instances = []
+
 
 export default class AddressAutofill {
   constructor (context, options = {}) {
@@ -65,18 +67,22 @@ export default class AddressAutofill {
     this.options = {...defaultOptions, ...options}
     this.autocomplete = null
     this.result = null
+    this.instance = instances.push(this) - 1
     if (typeof window.initAutocomplete !== 'function') {
       window.initAutocomplete = () => {
-        // Create the autocomplete instance with custom options
-        console.log('this.inputElement', this.inputElement)
-        this.autocomplete = new google.maps.places.Autocomplete(this.inputElement, this.options.googlePlacesConfig)
-        if (this.options.useBrowserGeolocation) {
-          this.geolocate()
-        }
-        // When the user selects an address from the dropdown, populate the address fields in the form.
-        this.autocomplete.addListener('place_changed', () => this.setAddress())
+        instances.forEach(instance => {
+          // Create the autocomplete instance with custom options
+          instance.autocomplete = new google.maps.places.Autocomplete(instance.inputElement, instance.options.googlePlacesConfig)
+          if (instance.options.useBrowserGeolocation) {
+            instance.geolocate()
+          }
+          // When the user selects an address from the dropdown, populate the address fields in the form.
+          instance.autocomplete.addListener('place_changed', () => instance.setAddress())
+        })
       }
-      injectMapsScript(this.options.googleScriptParams) // Injects Google Api Script
+      if (!window.mapsScript) {
+        injectMapsScript(this.options.googleScriptParams) // Injects Google Api Script
+      }
     }
     return this
   }
@@ -164,4 +170,5 @@ function injectMapsScript (params = null) {
   }
   mapsScript.src = mapsUrl
   document.body.appendChild(mapsScript)
+  window.mapsScript = true
 }
