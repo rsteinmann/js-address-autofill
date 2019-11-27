@@ -14,20 +14,24 @@
 <body>
 
   <main class="container mt-4">
+    
+    
     <header class="mb-5">
       <h1>addressAutofill.js - Demo</h1>
     </header>
+
+
     <article class="card">
-      <header class="card-header">
-        <h3>Instance 1</h3>
-      </header>
-      <div class="card-body">
-          <h6 class="text-muted">Address Input</h6>
-          <input id="autocomplete" data-autocomplete class="form-control"  style="border: 3px solid blueviolet;" />
-      </div>
-      <div class="card-body">
-        <h6 class="text-muted">Address Output</h6>
-        <form id="my-form-1">
+      <form id="my-form-1">
+        <header class="card-header">
+          <h3>Instance 1</h3>
+        </header>
+        <div class="card-body">
+            <h6 class="text-muted">Address Input</h6>
+            <input id="autocomplete" data-autocomplete class="form-control"  style="border: 3px solid blueviolet;" />
+        </div>
+        <div class="card-body">
+          <h6 class="text-muted">Address Output</h6>
           <div class="row mb-2">
             <div class="col-md-6 col-12">
               <input type="text" name="streetName" class="form-control" disabled />
@@ -57,9 +61,57 @@
                 <input type="text" name="lng" class="form-control" disabled />
             </div>
           </div>
-        </form>
-      </div>
+        </div>
+      </form>
     </article>
+
+
+    <article class="card mt-5">
+      <form id="my-form-2">
+        <header class="card-header">
+          <h3>Instance 2</h3>
+        </header>
+        <div class="card-body">
+            <h6 class="text-muted">Address Input</h6>
+            <input id="autocomplete" data-autocomplete class="form-control"  style="border: 3px solid blueviolet;" />
+        </div>
+        <div class="card-body">
+          <h6 class="text-muted">Address Output</h6>
+          <div class="row mb-2">
+            <div class="col-md-6 col-12">
+              <input type="text" name="streetName" class="form-control" disabled />
+            </div>
+            <div class="col-md-6 col-12">
+              <input type="text" name="streetNumber" class="form-control" />
+            </div>
+          </div>
+          <div class="row mb-2">
+            <div class="col-md-6 col-12">
+              <input type="text" name="postalCode" class="form-control" disabled />
+            </div>
+            <div class="col-md-6 col-12">
+              <input type="text" name="city" class="form-control" disabled />
+            </div>
+          </div>
+          <div class="row mb-2">
+            <div class="col-md-6 col-12">
+              <input type="text" name="country" class="form-control" disabled />
+            </div>
+          </div>
+          <div class="row mb-2">
+            <div class="col-md-6 col-12">
+                <input type="text" name="lat" class="form-control" disabled />
+            </div>
+            <div class="col-md-6 col-12">
+                <input type="text" name="lng" class="form-control" disabled />
+            </div>
+          </div>
+        </div>
+      </form>
+    </article>
+
+
+
     <script src="getConfig.js"></script>
     <script src="addressAutofill.js"></script>
     <script>

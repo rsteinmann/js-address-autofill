@@ -52,20 +52,32 @@ const defaultOptions = {
 
 export default class AddressAutofill {
   constructor (context, options = {}) {
+    if (typeof context !== 'object' || (!(context instanceof HTMLElement) && !(context instanceof HTMLDocument))) {
+      console.error('Please choose a valid context for AddressAutofill! Given:', context)
+      return null
+    }
+    this.context = context
+    this.inputElement = this.context.querySelector('[data-autocomplete]')
+    if (!(this.inputElement instanceof HTMLInputElement)) {
+      console.error('Please choose a valid input field for AddressAutofill! Given:', this.inputElement)
+      return null
+    }
     this.options = {...defaultOptions, ...options}
-    this.inputElement = document.querySelector('[data-autocomplete]')
     this.autocomplete = null
     this.result = null
-    window.initAutocomplete = () => {
-      // Create the autocomplete instance with custom options
-      this.autocomplete = new google.maps.places.Autocomplete(this.inputElement, this.options.googlePlacesConfig)
-      if (this.options.useBrowserGeolocation) {
-        this.geolocate()
+    if (typeof window.initAutocomplete !== 'function') {
+      window.initAutocomplete = () => {
+        // Create the autocomplete instance with custom options
+        console.log('this.inputElement', this.inputElement)
+        this.autocomplete = new google.maps.places.Autocomplete(this.inputElement, this.options.googlePlacesConfig)
+        if (this.options.useBrowserGeolocation) {
+          this.geolocate()
+        }
+        // When the user selects an address from the dropdown, populate the address fields in the form.
+        this.autocomplete.addListener('place_changed', () => this.setAddress())
       }
-      // When the user selects an address from the dropdown, populate the address fields in the form.
-      this.autocomplete.addListener('place_changed', () => this.setAddress())
+      injectMapsScript(this.options.googleScriptParams) // Injects Google Api Script
     }
-    injectMapsScript(this.options.googleScriptParams) // Injects Google Api Script
     return this
   }
 
@@ -99,7 +111,7 @@ export default class AddressAutofill {
       }
       // Optional: Fill out the form
       if (this.options.enableInputFillIn) {
-        const element = document.querySelector(resultMap[itemName].targetSelector)
+        const element = this.context.querySelector(resultMap[itemName].targetSelector)
         if (!element) {
           console.warn(`AddressAutofill: Could not find in element ${resultMap[itemName].targetSelector} in DOM, please check your config!`)
         } else {
