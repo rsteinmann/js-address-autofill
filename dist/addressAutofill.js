@@ -97,13 +97,13 @@ var AddressAutofill =
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return AddressAutofill; });
-function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
-
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
 
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(source, true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(source).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -119,18 +119,16 @@ var defaultOptions = {
   // if set to true the module will autoconstruct and attach to window object as "addressAutofill"
   enableInputFillIn: true,
   // Fills out form with configured selectors on selection of google address
+  useBrowserGeolocation: true,
+  // Uses the browser's geolocation API to ask the user for her current location (makes predictions more precise)
   inputSelector: '[data-autocomplete]',
   googleScriptParams: {
-    key: 'AIzaSyBDTdKd1_rCVcZhGzSaAMqYY7LDy9YaLl8',
-    callback: 'initAutocomplete',
-    language: 'de'
+    // This configuration will be passed to Google Places API as urlParams
+    key: 'YOUR_KEY_IS_REQUIRED_HERE' // This is required!
+
   },
-  googlePlacesConfig: {
-    types: ['address'],
-    componentRestrictions: {
-      country: 'de'
-    }
-  },
+  googlePlacesConfig: {},
+  // This configuration will be passed to Google Places API
   mapResult: {
     streetName: {
       use: 'long_name',
@@ -171,51 +169,81 @@ var defaultOptions = {
       targetSelector: '[name="lng"]'
     }
   }
-}; // Bias the autocomplete object to the user's geographical location,
-// as supplied by the browser's 'navigator.geolocation' object.
+};
+/**
+ * Stores all instances of AddressAutofill
+ */
+
+var instances = [];
 
 var AddressAutofill =
 /*#__PURE__*/
 function () {
   function AddressAutofill(context) {
-    var _this = this;
-
     var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
     _classCallCheck(this, AddressAutofill);
 
+    if (_typeof(context) !== 'object' || !(context instanceof HTMLElement) && !(context instanceof HTMLDocument)) {
+      console.error('Please choose a valid context for AddressAutofill! Given:', context);
+      return null;
+    }
+
+    this.context = context;
+    this.inputElement = this.context.querySelector('[data-autocomplete]');
+
+    if (!(this.inputElement instanceof HTMLInputElement)) {
+      console.error('Please choose a valid input field for AddressAutofill! Given:', this.inputElement);
+      return null;
+    }
+
     this.options = _objectSpread({}, defaultOptions, {}, options);
-    this.inputElement = document.querySelector('[data-autocomplete]');
     this.autocomplete = null;
     this.result = null;
+    this.instance = instances.push(this) - 1; // Check for configs
 
-    window.initAutocomplete = function () {
-      // Create the autocomplete instance with custom options
-      _this.autocomplete = new google.maps.places.Autocomplete(_this.inputElement, _this.options.googlePlacesConfig);
-
-      _this.geolocate(); // When the user selects an address from the dropdown, populate the address fields in the form.
+    if (this.inputElement.getAttribute('data-autocomplete') !== null) {
+      this.options.googleScriptParams.key = this.inputElement.getAttribute('data-autocomplete');
+    } // Check if the script is already injected
 
 
-      _this.autocomplete.addListener('place_changed', function () {
-        return _this.setAddress();
-      });
-    };
+    if (!window.hasGoogleAutocomplete) {
+      if (typeof window.initAutocomplete !== 'function') {
+        // Creates new instance of autocomplete for each already existing AddressAutofill instance
+        window.initAutocomplete = function () {
+          return instances.forEach(function (instance) {
+            return initAutocomplete(instance);
+          });
+        };
+      }
 
-    injectMapsScript(this.options.googleScriptParams); // Injects Google Api Script
+      injectMapsScript(this.options.googleScriptParams);
+    } else {
+      initAutocomplete(this);
+    } // Capture Enter Press
 
-    console.log('INIT:', this);
+
+    this.inputElement.addEventListener('keydown', function (event) {
+      if (event.keyCode == 13) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+    });
     return this;
   }
+  /**
+   * Sets the address found by the Places API to the configured fields.
+   */
+
 
   _createClass(AddressAutofill, [{
     key: "setAddress",
     value: function setAddress() {
-      var _this2 = this;
+      var _this = this;
 
       this.result = {};
       var resultMap = this.options.mapResult;
-      var place = this.autocomplete.getPlace();
-      console.log('Place', place); // Map the result data
+      var place = this.autocomplete.getPlace(); // Map the result data
 
       var _loop = function _loop(itemName) {
         var itemValue = null;
@@ -230,20 +258,24 @@ function () {
             break;
 
           default:
-            itemValue = place.address_components.filter(function (component) {
-              // TODO: Fix error on empty entries like street number, etc...
+            var address_component = place.address_components.filter(function (component) {
               return component.types.includes(resultMap[itemName].resultType);
-            })[0][resultMap[itemName].use];
+            });
+
+            if (address_component.length > 0) {
+              itemValue = address_component[0][resultMap[itemName].use];
+            }
+
         } // Optional: Fill out the form
 
 
-        if (_this2.options.enableInputFillIn) {
-          var element = document.querySelector(resultMap[itemName].targetSelector);
+        if (_this.options.enableInputFillIn) {
+          var element = _this.context.querySelector(resultMap[itemName].targetSelector);
 
           if (!element) {
             console.warn("AddressAutofill: Could not find in element ".concat(resultMap[itemName].targetSelector, " in DOM, please check your config!"));
           } else {
-            _this2.result[itemName] = itemValue;
+            _this.result[itemName] = itemValue;
             element.value = itemValue;
           }
         }
@@ -251,29 +283,6 @@ function () {
 
       for (var itemName in resultMap) {
         _loop(itemName);
-      }
-
-      console.log('Result', this.result);
-    }
-  }, {
-    key: "geolocate",
-    value: function geolocate() {
-      var _this3 = this;
-
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(function (position) {
-          var geolocation = {
-            lat: position.coords.latitude,
-            lng: position.coords.longitude
-          };
-          var circle = new google.maps.Circle({
-            center: geolocation,
-            radius: position.coords.accuracy
-          });
-          console.log('I found your location!', geolocation, circle);
-
-          _this3.autocomplete.setBounds(circle.getBounds());
-        });
       }
     }
   }]);
@@ -296,10 +305,10 @@ function injectMapsScript() {
   }
 
   if (!params.key) {
-    return console.error('Please add a valid API key for "AddressAutofill.key" to run AddressAutofill!');
+    return console.error('Please add a valid API key for "AddressAutofill" to run AddressAutofill!');
   }
 
-  var mapsUrl = "https://maps.googleapis.com/maps/api/js?libraries=places";
+  var mapsUrl = "https://maps.googleapis.com/maps/api/js?libraries=places&callback=initAutocomplete";
   var mapsScript = document.createElement("script");
 
   for (var key in params) {
@@ -308,6 +317,46 @@ function injectMapsScript() {
 
   mapsScript.src = mapsUrl;
   document.body.appendChild(mapsScript);
+  window.hasGoogleAutocomplete = true;
+}
+/**
+ * Instanciates a new google autocomplete object and binds it to the given AddressAutofill instance.
+ * @param {AddressAutofill} instance - Any instance of the AddressAutofill module.
+ */
+
+
+function initAutocomplete(instance) {
+  // Create the autocomplete instance with custom options
+  instance.autocomplete = new google.maps.places.Autocomplete(instance.inputElement, instance.options.googlePlacesConfig);
+
+  if (instance.options.useBrowserGeolocation) {
+    geolocate(instance.autocomplete);
+  } // When the user selects an address from the dropdown, populate the address fields in the form.
+
+
+  instance.autocomplete.addListener('place_changed', function () {
+    return instance.setAddress();
+  });
+}
+/**
+ * Tries to get the user's geolocation using the browser's Geolocation API.
+ */
+
+
+function geolocate(reference) {
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(function (position) {
+      var location = {
+        lat: position.coords.latitude,
+        lng: position.coords.longitude
+      };
+      var circle = new google.maps.Circle({
+        center: location,
+        radius: position.coords.accuracy
+      });
+      reference.setBounds(circle.getBounds());
+    });
+  }
 }
 
 /***/ }),

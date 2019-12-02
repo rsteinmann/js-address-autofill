@@ -13,7 +13,17 @@ This setup also works for development since the webpack's filewatcher is activat
 
 #### 1. Add configuration
 
-A configuration file is not supported yet, but will follow soon.
+Create a new file: ´demo/config.json´ and add your Google Maps API like this:
+
+```
+{
+  "apiKey": "YOUR_API_KEY_HERE"
+}
+```
+
+This will setup the key for your demo environment.
+
+It's also possible to pass the API key within the options directly.
 
 #### 2. Run the Server
 
