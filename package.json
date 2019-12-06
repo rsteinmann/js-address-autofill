@@ -1,6 +1,6 @@
 {
   "name": "js-address-autofill",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "An ES6 Module using the Google Places Autocomplete API for address completion in forms.",
   "browserslist": [
     "> 1%",
@@ -9,10 +9,14 @@
     "not dead"
   ],
   "keywords": [
+    "google-api",
+    "places",
+    "autocomplete",
     "javascript",
     "es2015",
-    "google-api",
-    "autocomplete"
+    "webpack",
+    "babel",
+    "jest"
   ],
   "author": {
     "name": "Raphael Steinmann",
@@ -21,7 +25,7 @@
   "license": "MIT",
   "main": "dist/addressAutofill.min.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest --verbose",
     "start": "webpack-dev-server --open",
     "watch": "webpack --watch",
     "prod": "cross-env NODE_ENV=production webpack",
@@ -31,8 +35,11 @@
   "devDependencies": {
     "@babel/core": "^7.7.2",
     "@babel/preset-env": "^7.7.1",
+    "@types/jest": "^24.0.23",
+    "babel-jest": "^24.9.0",
     "babel-loader": "^8.0.6",
     "cross-env": "^6.0.3",
+    "jest": "^24.9.0",
     "unminified-webpack-plugin": "^2.0.0",
     "webpack": "^4.41.2",
     "webpack-cli": "^3.3.10",
