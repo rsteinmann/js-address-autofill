@@ -13,7 +13,7 @@ This setup also works for development since the webpack's filewatcher is activat
 
 #### 1. Add configuration
 
-Create a new file: ´demo/config.json´ and add your Google Maps API like this:
+Create a new file: ´./demo/config.json´ and add your Google Maps API like this:
 
 ```
 {
@@ -45,6 +45,7 @@ npm start       // Starts the Devserver
 npm run watch   // Starts the file watcher for development
 npm run prod    // Bundles the minified javascript and source maps
 npm run dev     // Bundles the unminified javascript and source maps
-npm run build   // Runs dev and prod mode at once (to prepare releases)
-npm run test    // Not integrated yet
+npm run build   // Runs lint, test, dev and prod mode at once (to prepare releases)
+npm run test    // Runs jest testrunner
+npm run lint    // Runs eslint on source files
 ```

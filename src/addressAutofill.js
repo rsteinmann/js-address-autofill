@@ -110,19 +110,19 @@ export default class AddressAutofill {
     const place = this.autocomplete.getPlace()
     // Map the result data
     for (const itemName in resultMap) {
-      const itemValue = null
+      let itemValue = null
       switch(resultMap[itemName].resultType) {
-        case 'lat':
-          itemValue = place.geometry.location.lat()
-          break
-        case 'lng':
-          itemValue = place.geometry.location.lng()
-          break
-        default:
-          const address_component = place.address_components.filter(component => component.types.includes(resultMap[itemName].resultType))
-          if (address_component.length > 0) {
-            itemValue = address_component[0][resultMap[itemName].use]
-          }
+      case 'lat':
+        itemValue = place.geometry.location.lat()
+        break
+      case 'lng':
+        itemValue = place.geometry.location.lng()
+        break
+      default:
+        var address_component = place.address_components.filter(component => component.types.includes(resultMap[itemName].resultType))
+        if (address_component.length > 0) {
+          itemValue = address_component[0][resultMap[itemName].use]
+        }
       }
       // Optional: Fill out the form
       if (this.options.enableInputFillIn) {
@@ -150,8 +150,8 @@ function injectMapsScript (params = null) {
   if (!params.key) {
     return console.error('Please add a valid API key for "AddressAutofill" to run AddressAutofill!')
   }
-  let mapsUrl = "https://maps.googleapis.com/maps/api/js?libraries=places&callback=initAutocomplete"
-  let mapsScript = document.createElement("script")
+  let mapsUrl = 'https://maps.googleapis.com/maps/api/js?libraries=places&callback=initAutocomplete'
+  let mapsScript = document.createElement('script')
   for (const key in params) {
     mapsUrl += `&${key}=${params[key]}`
   }
@@ -167,6 +167,7 @@ function injectMapsScript (params = null) {
  */
 function initAutocomplete (instance) {
   // Create the autocomplete instance with custom options
+  // eslint-disable-next-line no-undef
   instance.autocomplete = new google.maps.places.Autocomplete(instance.inputElement, instance.options.googlePlacesConfig)
   if (instance.options.useBrowserGeolocation) {
     geolocate(instance.autocomplete)
@@ -186,6 +187,7 @@ function geolocate(reference) {
         lat: position.coords.latitude,
         lng: position.coords.longitude
       }
+      // eslint-disable-next-line no-undef
       const circle = new google.maps.Circle({
         center: location,
         radius: position.coords.accuracy
