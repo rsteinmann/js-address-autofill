@@ -118,16 +118,18 @@
       window.onload = function () {
         // Try to load the config
         getConfig(function (envConfig) {
-          
           // The globally exposed Module
           console.log('Module: AddressAutofill', AddressAutofill)
 
+          // Google Maps Script Params
+          AddressAutofill.injectMaps({
+            key: envConfig.apiKey,
+            language: 'de'
+          })
+
+
           // Project's custom configuration
           let myConfig = {
-            googleScriptParams: {
-              key: envConfig.apiKey,
-              language: 'de'
-            },
             googlePlacesConfig: {
               types: ['address'],
               componentRestrictions: {country: 'de'}
@@ -142,9 +144,16 @@
 
 
           // Load AddressAutocomplete for the 2nd form
+          setTimeout(function() {
           const context2  = document.getElementById('my-form-2')
-          const instance2 = AddressAutofill.init(context2, myConfig)
+          const instance2 = AddressAutofill.init(context2, {
+            googlePlacesConfig: {
+              types: ['address'],
+              componentRestrictions: {country: 'us'}
+            }
+          })
           console.log('[2] instance', instance2)
+          }, 5000)
         })
       }
     </script>
