@@ -74,7 +74,7 @@ export default class AddressAutofill {
     this.instance = instances.push(this) - 1
 
     // Check for configs
-    if (this.inputElement.getAttribute('data-autocomplete') !== null) {
+    if (this.inputElement.getAttribute('data-autocomplete')) {
       this.options.googleScriptParams.key = this.inputElement.getAttribute('data-autocomplete')
     }
 
