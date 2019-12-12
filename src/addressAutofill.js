@@ -1,3 +1,5 @@
+const merge = require('deepmerge')
+
 /**
  * The Modules default configuration.
  */
@@ -7,7 +9,8 @@ const defaultOptions = {
   useBrowserGeolocation: true, // Uses the browser's geolocation API to ask the user for her current location (makes predictions more precise)
   inputSelector: '[data-autocomplete]',
   googleScriptParams: { // This configuration will be passed to Google Places API as urlParams
-    key: 'YOUR_KEY_IS_REQUIRED_HERE' // This is required!
+    v: '3.39', // Sets google maps to a specific version
+    key: 'YOUR_KEY_IS_REQUIRED_HERE', // Sets the google places api key
   },
   googlePlacesConfig: {}, // This configuration will be passed to Google Places API
   mapResult: {
@@ -68,7 +71,7 @@ export default class AddressAutofill {
       console.error('Please choose a valid input field for AddressAutofill! Given:', this.inputElement)
       return null
     }
-    this.options = {...defaultOptions, ...options}
+    this.options = merge(defaultOptions, options)
     this.autocomplete = null
     this.result = null
     this.instance = instances.push(this) - 1
@@ -169,6 +172,7 @@ function initAutocomplete (instance) {
   // Create the autocomplete instance with custom options
   // eslint-disable-next-line no-undef
   instance.autocomplete = new google.maps.places.Autocomplete(instance.inputElement, instance.options.googlePlacesConfig)
+  // console.log('Maps Version', google.maps.version)
   if (instance.options.useBrowserGeolocation) {
     geolocate(instance.autocomplete)
   }
