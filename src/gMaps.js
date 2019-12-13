@@ -75,6 +75,19 @@ export function injectMapsScript (mapsParams) {
 
 
 /**
+ * Creates and injects an invisible google maps container to passed context.
+ * @param {HTMLElement} context - The context in which the container is injected
+ */
+export function injectMapContainer (context = document.body) {
+  let mapsContainer = document.createElement('div')
+  mapsContainer.id = 'mapsContainer'
+  mapsContainer.style.display = 'none'
+  context.appendChild(mapsContainer)
+  return mapsContainer
+}
+
+
+/**
  * Callback that creates an autocomplete instance to each stored instance.
  */
 export function initAutocomplete () {
@@ -83,6 +96,23 @@ export function initAutocomplete () {
   addressAutofillInstances.forEach(instance => {
     instance.init()
   })
+}
+
+
+/**
+ * Instantitates several google api services required to request addresses programatically.
+ * @param {AddressAutofill} instance - Any instance of AddressAutofill
+ */
+export function initPlacesServices (instance) {
+  let mapsContainer = injectMapContainer(instance.context)
+  // eslint-disable-next-line no-undef
+  const baseLocation = new google.maps.LatLng(instance.options.baseLocation.lat, instance.options.baseLocation.lng)
+  // eslint-disable-next-line no-undef
+  instance.services.autocomplete = new google.maps.places.AutocompleteService()
+  // eslint-disable-next-line no-undef
+  instance.services.maps = new google.maps.Map(mapsContainer, { center: baseLocation, zoom: 15 })
+  // eslint-disable-next-line no-undef
+  instance.services.places = new google.maps.places.PlacesService(instance.services.maps)
 }
 
 

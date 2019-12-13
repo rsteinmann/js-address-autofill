@@ -9,6 +9,7 @@ const defaultOptions = {
   enableInputFillIn: true, // Fills out form with configured selectors on selection of google address
   useBrowserGeolocation: true, // Uses the browser's geolocation API to ask the user for her current location (makes predictions more precise)
   inputSelector: '[data-autocomplete]',
+  baseLocation: { lat: 51.1642292, lng: 10.4541194 }, // Sets the starting location where adresses should be searched from (default: mid of germany)
   googlePlacesConfig: {}, // This configuration will be passed to Google Places API
   mapResult: [
     {
@@ -19,7 +20,8 @@ const defaultOptions = {
     {
       use: 'short_name',                        // Use from Api result 'short_name' | 'long_name'
       resultType: 'street_number',              // Name of the type from Api result
-      targetSelector: '[name="streetNumber"]'   // Target element that should be filled with this information
+      targetSelector: '[name="streetNumber"]',  // Target element that should be filled with this information
+      bindValue: true                           // If set to true the user input will be backwritten to maps input
     },
     {
       use: 'long_name',
@@ -63,8 +65,9 @@ export default class AddressAutofill {
       return null
     }
     this.options = deepmerge(defaultOptions, options)
-    this.result = null
     this.hasInstantiated = false
+    this.result = null
+    this.services = {}
     // Override Api Key Config
     if (this.inputElement.getAttribute('data-autocomplete')) {
       this.options.googleScriptParams.key = this.inputElement.getAttribute('data-autocomplete')
@@ -76,6 +79,10 @@ export default class AddressAutofill {
   }
 
 
+  /**
+   * Initializes the Module.
+   * Gets fired as callback when google maps has finished loading.
+   */
   init () {
     if (this.hasInstantiated) {
       return false
@@ -86,6 +93,7 @@ export default class AddressAutofill {
     if (this.options.useBrowserGeolocation) {
       gMaps.geolocate(this.autocomplete)
     }
+    gMaps.initPlacesServices(this)
     // Capture Enter Press
     this.inputElement.addEventListener('keydown', event => {
       if (event.keyCode == 13) {
@@ -95,17 +103,49 @@ export default class AddressAutofill {
     })
     // When the user selects an address from the dropdown, fire callback
     this.autocomplete.addListener('place_changed', () => this.placeChanged())
+    bindInputs (this.options.mapResult, this.context, () => this.getAddress() )
     this.hasInstantiated = true
     return this.hasInstantiated
   }
 
 
-  placeChanged () {
-    this.result = getMappedResults(this.options.mapResult, this.autocomplete.getPlace())
-    console.log('place has changed', this.result)
+  /**
+   * Callback that gets fired when a new place has been selected.
+   */
+  placeChanged (place) {
+    place = place || this.autocomplete.getPlace()
+    this.result = getMappedResults(this.options.mapResult, place)
     if (this.options.enableInputFillIn) {
       this.setAddress()
     }
+  }
+
+
+  /**
+   * Collects the form data and sends it to google autocomplete service to get back a place.
+   */
+  getAddress() {
+    const searchObject = { 
+      ...{
+        input: this.getFormValues(true),
+        // eslint-disable-next-line no-undef
+        sessionToken: new google.maps.places.AutocompleteSessionToken()
+      }, 
+      ...this.options.googlePlacesConfig
+    }
+    this.services.autocomplete.getPlacePredictions(searchObject,
+      (predictions)=> {
+        this.services.places.getDetails({ 
+          placeId: predictions[0].place_id, 
+          fields: ['geometry', 'address_component']
+        },
+        (place, status) => {
+          // eslint-disable-next-line no-undef
+          if (status == google.maps.places.PlacesServiceStatus.OK) {
+            this.placeChanged(place)
+          }
+        })
+      })
   }
 
 
@@ -122,6 +162,31 @@ export default class AddressAutofill {
       }
     })
   }
+
+
+  /**
+   * Gets all values from form and transforms them into object or string.
+   * @param {boolean} asString - if set to true it returns as string
+   * @return {object|string}
+   */
+  getFormValues (asString = false) {
+    let formValues = {
+      route: '',
+      street_number: '',
+      postal_code: '',
+      locality: '',
+      country: ''
+    }
+    this.options.mapResult.forEach(mapping => {
+      const value = this.context.querySelector(mapping.targetSelector).value
+      formValues[mapping.resultType] = value
+    })
+    if (!asString) {
+      return formValues
+    } else {
+      return `${formValues.route} ${formValues.street_number}, ${formValues.postal_code} ${formValues.locality}, ${formValues.country}`.trim()
+    }
+  }
 }
 
 
@@ -131,12 +196,10 @@ export default class AddressAutofill {
  * @param {Object} place - The GooglePlaces result place object.
  */
 function getMappedResults(mappings, place) {
-  console.log('place', place)
   let results = []
   // Map the result data
   mappings.forEach(mapItem => {
     let itemValue
-
     if (mapItem.resultType === 'lat') {
       itemValue = place.geometry.location.lat()
     }
@@ -145,7 +208,6 @@ function getMappedResults(mappings, place) {
     }
     else {
       var address_component = place.address_components.filter(component => component.types.includes(mapItem.resultType))
-      console.log('resultType', mapItem.resultType, address_component)
       if (address_component.length > 0) {
         itemValue = address_component[0][mapItem.use]
       } else {
@@ -158,4 +220,21 @@ function getMappedResults(mappings, place) {
     })
   })
   return results
+}
+
+
+/**
+ * Binds to all input fields that are configured in mappings.
+ * @param {Array} mappings - An Array that contains objects with use, resultsType, targetSelector properties
+ * @param {HTMLElement} context - Context in which the input fields are searched
+ * @param {Function} callback - Callback that gets fired
+ */
+function bindInputs (mappings, context, callback) {
+  mappings.forEach(mapping => {
+    if (mapping.bindValue && mapping.bindValue === true) {
+      context
+        .querySelector(mapping.targetSelector)
+        .addEventListener('keyup', event => callback(event))
+    }
+  })
 }
