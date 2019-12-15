@@ -50,7 +50,6 @@ export function getMapsUrl(mapsParams) {
     return console.error('Please add a valid API key for Google Places to use the service!')
   }
   mapsParams = {...defaultMapsParams, ...mapsParams}
-  console.log('mapsParams', mapsParams)
   let mapsUrl = 'https://maps.googleapis.com/maps/api/js?libraries=places&callback=initAutocomplete'
   for (const key in mapsParams) {
     mapsUrl += `&${key}=${mapsParams[key]}`
@@ -91,7 +90,6 @@ export function injectMapContainer (context = document.body) {
  * Callback that creates an autocomplete instance to each stored instance.
  */
 export function initAutocomplete () {
-  console.log('initAutocomplete => fired!', 'addressAutofillInstances', addressAutofillInstances)
   isMapsScriptLoaded = true
   addressAutofillInstances.forEach(instance => {
     instance.init()

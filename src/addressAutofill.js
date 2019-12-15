@@ -1,5 +1,4 @@
 import * as gMaps from './gMaps'
-import * as deepmerge from 'deepmerge'
 
 /**
  * The Modules default configuration.
@@ -64,14 +63,10 @@ export default class AddressAutofill {
       console.error('Please choose a valid input field for AddressAutofill! Given:', this.inputElement)
       return null
     }
-    this.options = deepmerge(defaultOptions, options)
+    this.options = {...defaultOptions, ...options}
     this.hasInstantiated = false
     this.result = null
     this.services = {}
-    // Override Api Key Config
-    if (this.inputElement.getAttribute('data-autocomplete')) {
-      this.options.googleScriptParams.key = this.inputElement.getAttribute('data-autocomplete')
-    }
     // Add instance to gMaps
     gMaps.addInstance(this)
 
@@ -87,7 +82,6 @@ export default class AddressAutofill {
     if (this.hasInstantiated) {
       return false
     }
-    console.log('init', this)
     // eslint-disable-next-line no-undef
     this.autocomplete = new google.maps.places.Autocomplete(this.inputElement, this.options.googlePlacesConfig)
     if (this.options.useBrowserGeolocation) {
